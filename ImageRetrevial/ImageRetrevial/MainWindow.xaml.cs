@@ -21,7 +21,9 @@ namespace ImageRetrevial
     /// </summary>
     public partial class MainWindow : Window
     {
-        DataController moc;
+        DataController dataController;
+        IndexController indexController;
+
         double ScrollDistance = 0;
         List<ISearchResult> SearchResults;
 
@@ -29,8 +31,8 @@ namespace ImageRetrevial
         {
             InitializeComponent();
             InitializeUI();
-            moc = new DataController("../../images/");
-            
+            dataController = new DataController("../../images/");
+            indexController = new IndexController();
 
             //foreach (var file in moc.GetResults())
             //{
@@ -77,7 +79,7 @@ namespace ImageRetrevial
             //Perform Search
             //Get Results ... return List<ISearchResult>
             //Display them
-            SearchResults = moc.GetResults().ToList();
+            SearchResults = dataController.GetResults().ToList();
             DisplaySearch();
 
         }
