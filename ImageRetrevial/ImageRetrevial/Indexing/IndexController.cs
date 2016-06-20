@@ -13,6 +13,12 @@ using Version = Lucene.Net.Util.Version;
 
 namespace ImageRetrevial
 {
+    struct QueryData
+    {
+        public string field;
+        public string value;
+    }
+
     class IndexController
     {
         string m_xmlRoot = @"C:\Users\Philipp\Desktop\xml\xml\";
@@ -37,25 +43,27 @@ namespace ImageRetrevial
             m_searcher = new IndexSearcher(FSDirectory.Open(indexDir));
         }
 
-        public void BuildIndex(string fileName)
+        void BuildIndex(string fileName)
         {
             IndexWriter writer = new IndexWriter(FSDirectory.Open(indexDir), new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.LIMITED);
 
+            // Read and parse XML file
             string xmlText = File.ReadAllText(m_xmlRoot + fileName);
             string topicName = fileName.Substring(0, fileName.IndexOf('.'));
             XmlReader reader = XmlReader.Create(new StringReader(xmlText));
-
-            // Parse the file and display each of the nodes.
+            
+            // Create index data from XML
             while (reader.Read())
             {
                 Document doc = new Document();
+                doc.Add(new Field("Topic", topicName, Field.Store.YES, Field.Index.ANALYZED));
+                writer.AddDocument(doc);
+
                 for (int i = 0; i < reader.AttributeCount; i++)
                 {
                     reader.MoveToAttribute(i);
                     doc.Add(new Field(reader.Name, reader.Value, Field.Store.YES, Field.Index.ANALYZED));
                 }
-                doc.Add(new Field("Topic", topicName, Field.Store.YES, Field.Index.ANALYZED));
-                writer.AddDocument(doc);
             }
 
             writer.Optimize();
@@ -63,7 +71,17 @@ namespace ImageRetrevial
             writer.Dispose();
         }
 
-        
+        public void QueryIndex(QueryData[] queries)
+        {
+            BooleanQuery boolQuery = new BooleanQuery();
+
+            foreach (var query in queries)
+            {
+                Term term = new Term(query.field, query.value);
+                Query query1 = new TermQuery(term);
+                boolQuery.Add(query1, Occur.SHOULD);
+            }
+        }
 
     }
 }
