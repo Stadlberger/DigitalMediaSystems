@@ -22,8 +22,7 @@ namespace ImageRetrevial
     public partial class MainWindow : Window
     {
         DataController dataController;
-        IndexController indexController;
-
+        
         static Dictionary<string, string> SearchTermToQuery = new Dictionary<string, string>();
 
         double ScrollDistance = 0;
@@ -33,9 +32,8 @@ namespace ImageRetrevial
         {
             InitializeComponent();
             InitializeUI();
-            dataController = new DataController("../../images/");
-            indexController = new IndexController();
-
+            dataController = new DataController();
+            
             //foreach (var file in moc.GetResults())
             //{
             //    Console.WriteLine(file.ImageName);
@@ -83,24 +81,22 @@ namespace ImageRetrevial
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
-            //TODO
-            QueryData[] Querys = new QueryData[SearchTermsUI.Children.Count];
-            for(int i=0; i<Querys.Length; i++)
+            AddSearchTerm(null, null);
+            QueryData[] querys = new QueryData[SearchTermsUI.Children.Count];
+            for(int i=0; i<querys.Length; i++)
             {
-                QueryData Data = new QueryData();
+                QueryData data = new QueryData();
                 Object[] UIData = (Object[])((FrameworkElement)SearchTermsUI.Children[i]).Tag;
-                Data.field = UIData[0].ToString();
-                Data.value = UIData[1].ToString();
-                Querys[i] = Data;
+                data.m_fieldName = UIData[0].ToString();
+                data.m_fieldValue = UIData[1].ToString();
+                querys[i] = data;
             }
             //Perform Search
             //Get Results ... return List<ISearchResult>
             //Display them
-            SearchResults = dataController.GetResults().ToList();
+            SearchResults = dataController.RunQuery(querys).ToList();
             DisplaySearch();
-            indexController.TempQueryWithString(SearchTextBox.Text);
         }
-
 
         public void DisplaySearch()
         {
@@ -183,7 +179,7 @@ namespace ImageRetrevial
         private void CreateResultImageEntry(int index)
         {
             Image Entry = new Image();
-            string path = Environment.CurrentDirectory + SearchResults[index].RelativeURL;
+            string path = Config.Get().m_pathToImages + SearchResults[index].RelativeURI;
             var uri = new Uri(path, UriKind.Absolute);
             var uriSource = new Uri(path);
             Entry.Source = new BitmapImage(uriSource);
@@ -218,7 +214,7 @@ namespace ImageRetrevial
 
                 Button FileOpener = new Button();
                 FileOpener.Content = "Open FilePath";
-                FileOpener.Tag = SearchResult.RelativeURL;
+                FileOpener.Tag = SearchResult.RelativeURI;
                 FileOpener.Height = 25;
                 FileOpener.Width = 100;
                 FileOpener.Margin = new Thickness(80, -20, 0, 0);
@@ -249,7 +245,7 @@ namespace ImageRetrevial
 
         private void OpenFilePath(object sender, RoutedEventArgs e)
         {
-            string path = Environment.CurrentDirectory + ((Button)sender).Tag;
+            string path = Config.Get().m_pathToImages + ((Button)sender).Tag;
             var uri = new Uri(path, UriKind.Absolute);
             Console.WriteLine(uri);
             Process.Start("explorer.exe", @"/select," + uri);
@@ -332,7 +328,6 @@ namespace ImageRetrevial
         {
             if (e.Key == Key.Enter)
             {
-                AddSearchTerm(null, null);
                 SearchButton_Click(null, null);
             }
         }

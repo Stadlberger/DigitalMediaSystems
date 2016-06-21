@@ -250,3 +250,7 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+ImageRetrevial/ImageRetrevial/bin/Debug/config.txt
+ImageRetrevial/ImageRetrevial/bin/Release/config.txt
+

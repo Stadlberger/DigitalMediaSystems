@@ -67,6 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Config.cs" />
     <Compile Include="Controller\Lorem.cs" />
     <Compile Include="Controller\SearchResults.cs" />
     <Page Include="MainWindow.xaml">

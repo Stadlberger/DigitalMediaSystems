@@ -3,40 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace ImageRetrevial
-{
-    
+{  
     class DataController
     {
-        Dictionary<String, ISearchResult> m_data;
-        string m_assetPath;
+        IndexController m_indexController;
         
-        public DataController(string assetPath)
+        public DataController()
         {
-            m_assetPath = assetPath;
-            m_data = new Dictionary<string, ISearchResult>();
-
-            BuildData();
+            m_indexController = new IndexController();
         }
-
-        void BuildData()
+        
+        public ICollection<ISearchResult> RunQuery(QueryData[] querys)
         {
-            try
-            {
-                foreach (var url in Directory.GetFiles(m_assetPath))
-                {
-                    ISearchResult data = new SearchResult("/"+url, LoremIpsum.Generate(15, 35, 1, 2, 1));
-                    m_data.Add(data.FileName, data);
-                }
-            }
-            catch (DirectoryNotFoundException excep)
-            {
-                Console.WriteLine(excep.Message);
-            }
-        }
-
-        public ICollection<ISearchResult> GetResults()
-        {
-            return new List<ISearchResult>(m_data.Values);
-        }
+            return m_indexController.QueryIndex(querys);
+        }      
     }
 }

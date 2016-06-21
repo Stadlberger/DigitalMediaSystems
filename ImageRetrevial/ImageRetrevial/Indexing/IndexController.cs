@@ -7,6 +7,7 @@ using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
 using Lucene.Net.Analysis.Snowball;
+using Lucene.Net.Analysis;
 
 using FSDirectory = Lucene.Net.Store.FSDirectory;
 using Version = Lucene.Net.Util.Version;
@@ -28,12 +29,14 @@ namespace ImageRetrevial
     /// <summary>Used for creating and querying indexes of our data.</summary>
     class IndexController
     {
-        string m_xmlRoot = @"D:\Eigene Daten\Dokumente\Studium\DigitalMediaSystem\Data\devset\xml\";
+        string m_xmlRoot;
         DirectoryInfo m_indexDir;
         IndexSearcher m_searcher;
 
         public IndexController()
         {
+            m_xmlRoot = Config.Get().m_pathToXML;
+
             if (!Directory.Exists(m_xmlRoot + @"..\index"))
             {
                 Directory.CreateDirectory(m_xmlRoot + @"..\index");
@@ -50,10 +53,11 @@ namespace ImageRetrevial
 
             m_searcher = new IndexSearcher(FSDirectory.Open(m_indexDir));
         }
-
+        
         void BuildIndex()
         {
-            IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new SnowballAnalyzer(Version.LUCENE_30, "Analyzer"), true, IndexWriter.MaxFieldLength.UNLIMITED);
+            //new SnowballAnalyzer(Version.LUCENE_30, "Nigel");
+            IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new WhitespaceAnalyzer(), true, IndexWriter.MaxFieldLength.UNLIMITED);
             var documents = new List<Document>();
             
             foreach (var fileInfo in new DirectoryInfo(m_xmlRoot).EnumerateFiles())
@@ -74,28 +78,20 @@ namespace ImageRetrevial
                         reader.MoveToAttribute(i);
                         documents[documents.Count - 1].Add(new Field(reader.Name, reader.Value, Field.Store.YES, Field.Index.ANALYZED));
                     }
+
+                    writer.AddDocument(documents[documents.Count - 1]);
                 }
             };
             
-            foreach (var doc in documents) writer.AddDocument(doc);
+            //foreach (var doc in documents) writer.AddDocument(doc);
             writer.Optimize();
             writer.Commit();
             writer.Dispose();
         }
-
-        ///<summary>Used for testing querying while query building is not yet support. Do not ship.</summary>
-        public void TempQueryWithString(string queryString)
-        {
-            var tokens = queryString.Split(' ');
-            QueryData[] queryData = new QueryData[1];
-            queryData[0] = new QueryData(tokens[0], tokens[1]);
-            QueryIndex(queryData);
-        }
-
-        public void QueryIndex(QueryData[] queries)
+        
+        public ICollection<ISearchResult> QueryIndex(QueryData[] queries)
         {
             BooleanQuery boolQuery = new BooleanQuery();
-
             foreach (var query in queries)
             {
                 Term term = new Term(query.m_fieldName, query.m_fieldValue);
@@ -103,17 +99,25 @@ namespace ImageRetrevial
                 boolQuery.Add(query1, Occur.SHOULD);
             }
 
-            TopScoreDocCollector topDocColl = TopScoreDocCollector.Create(10, true);
+            TopScoreDocCollector topDocColl = TopScoreDocCollector.Create(50, true);
             m_searcher.Search(boolQuery, topDocColl);
             TopDocs topDocs = topDocColl.TopDocs();
 
-            Console.WriteLine("Number of hits {0}", topDocs.TotalHits);
-
+            List<ISearchResult> results = new List<ISearchResult>();
+            
             foreach (var searchHit in topDocs.ScoreDocs)
             {
-                Console.WriteLine(searchHit.Doc + ". " + m_searcher.Doc(searchHit.Doc).GetField("description").StringValue);
-            }
-        }
+                string topic = m_searcher.Doc(searchHit.Doc).GetField("Topic").StringValue;
+                string id = m_searcher.Doc(searchHit.Doc).GetField("id").StringValue;
+                string description = m_searcher.Doc(searchHit.Doc).GetField("description").StringValue;
+                string title = m_searcher.Doc(searchHit.Doc).GetField("title").StringValue;
 
+                results.Add(new SearchResult( topic + "/" + id + ".jpg", title, id + ".jpg", description));
+
+                Console.WriteLine(description);         
+             }
+
+            return results;
+        }
     }
 }

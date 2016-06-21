@@ -1,0 +1,3 @@
+pathToXML=<div-2014/[testset|devset]/xml>
+pathToData=<div-2014/>
+pathToImages=<div-2014/[testset|devset]/img/img>

@@ -5,32 +5,32 @@ namespace ImageRetrevial
     public interface ISearchResult
     {
         string ImageName { get; set; }
-        string RelativeURL { get; set; }
-        string FileName { get; set; }
+        string RelativeURI { get; set; }
+        string Title { get; set; }
         string Description { get; set; }
     }
     class SearchResult : ISearchResult
     {
-        string m_imageName;
-        string m_URL;
-        string m_descripton;
         string m_fileName;
+        string m_URI;
+        string m_descripton;
+        string m_title;
 
         public string ImageName
         {
-            get { return m_imageName; }
-            set { }
-        }
-
-        public string RelativeURL
-        {
-            get { return m_URL; }
-            set { }
-        }
-
-        public string FileName
-        {
             get { return m_fileName; }
+            set { }
+        }
+
+        public string RelativeURI
+        {
+            get { return m_URI; }
+            set { }
+        }
+
+        public string Title
+        {
+            get { return m_title; }
             set { }
         }
 
@@ -40,12 +40,12 @@ namespace ImageRetrevial
             set { }
         }
 
-        public SearchResult(string url, string description = "empty")
+        public SearchResult(string url, string title, string fileName, string description = "empty")
         {
-            m_URL = url;
-            m_imageName = Path.GetFileNameWithoutExtension(m_URL);
+            m_URI = url;
+            m_title = title;
+            m_fileName = fileName;
             m_descripton = description;
-            m_fileName = Path.GetFileName(m_URL);
         }
     }
 }
