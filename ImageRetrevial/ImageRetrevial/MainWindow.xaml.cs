@@ -81,7 +81,7 @@ namespace ImageRetrevial
             //Display them
             SearchResults = dataController.GetResults().ToList();
             DisplaySearch();
-
+            indexController.TempQueryWithString(SearchTextBox.Text);
         }
 
 

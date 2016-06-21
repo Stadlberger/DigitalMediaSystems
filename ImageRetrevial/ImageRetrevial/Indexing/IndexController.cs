@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using Lucene.Net.Documents;
-using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using Lucene.Net.Analysis.Snowball;
 
 using FSDirectory = Lucene.Net.Store.FSDirectory;
 using Version = Lucene.Net.Util.Version;
@@ -17,12 +17,12 @@ namespace ImageRetrevial
     {
         public QueryData(string fieldName, string fieldValue)
         {
-            field = fieldName;
-            value = fieldValue;
+            m_fieldName = fieldName;
+            m_fieldValue = fieldValue;
         }
 
-        public string field;
-        public string value;
+        public string m_fieldName;
+        public string m_fieldValue;
     }
 
     /// <summary>Used for creating and querying indexes of our data.</summary>
@@ -40,39 +40,44 @@ namespace ImageRetrevial
             }
 
             m_indexDir = new DirectoryInfo(m_xmlRoot + @"..\index");
-
             if (m_indexDir.GetFiles().Length == 0)
             {
-                foreach (var fileInfo in new DirectoryInfo(m_xmlRoot).EnumerateFiles())
-                    BuildIndex(fileInfo.Name);
+                //Parallel.ForEach(new DirectoryInfo(m_xmlRoot).EnumerateFiles(), (fileInfo) => {
+                //    BuildIndex(fileInfo.Name);
+                //});
+                BuildIndex();
             }
 
             m_searcher = new IndexSearcher(FSDirectory.Open(m_indexDir));
         }
 
-        void BuildIndex(string fileName)
+        void BuildIndex()
         {
-            IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.LIMITED);
-
-            // Read and parse XML file
-            string xmlText = File.ReadAllText(m_xmlRoot + fileName);
-            string topicName = fileName.Substring(0, fileName.IndexOf('.'));
-            XmlReader reader = XmlReader.Create(new StringReader(xmlText));
+            IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new SnowballAnalyzer(Version.LUCENE_30, "Analyzer"), true, IndexWriter.MaxFieldLength.UNLIMITED);
+            var documents = new List<Document>();
             
-            // Create index data from XML
-            while (reader.Read())
+            foreach (var fileInfo in new DirectoryInfo(m_xmlRoot).EnumerateFiles())
             {
-                Document doc = new Document();
-                doc.Add(new Field("Topic", topicName, Field.Store.YES, Field.Index.ANALYZED));
-                writer.AddDocument(doc);
+                // Read and parse XML file
+                string xmlText = File.ReadAllText(m_xmlRoot + fileInfo.Name);
+                string topicName = fileInfo.Name.Substring(0, fileInfo.Name.IndexOf('.'));
+                XmlReader reader = XmlReader.Create(new StringReader(xmlText));
 
-                for (int i = 0; i < reader.AttributeCount; i++)
+                // Create index data from XML
+                while (reader.Read())
                 {
-                    reader.MoveToAttribute(i);
-                    doc.Add(new Field(reader.Name, reader.Value, Field.Store.YES, Field.Index.ANALYZED));
-                }
-            }
+                    documents.Add(new Document());
+                    documents[documents.Count - 1].Add(new Field("Topic", topicName, Field.Store.YES, Field.Index.ANALYZED));
 
+                    for (int i = 0; i < reader.AttributeCount; i++)
+                    {
+                        reader.MoveToAttribute(i);
+                        documents[documents.Count - 1].Add(new Field(reader.Name, reader.Value, Field.Store.YES, Field.Index.ANALYZED));
+                    }
+                }
+            };
+            
+            foreach (var doc in documents) writer.AddDocument(doc);
             writer.Optimize();
             writer.Commit();
             writer.Dispose();
@@ -84,28 +89,29 @@ namespace ImageRetrevial
             var tokens = queryString.Split(' ');
             QueryData[] queryData = new QueryData[1];
             queryData[0] = new QueryData(tokens[0], tokens[1]);
+            QueryIndex(queryData);
         }
 
         public void QueryIndex(QueryData[] queries)
         {
             BooleanQuery boolQuery = new BooleanQuery();
-            
+
             foreach (var query in queries)
             {
-                Term term = new Term(query.field, query.value);
+                Term term = new Term(query.m_fieldName, query.m_fieldValue);
                 Query query1 = new TermQuery(term);
                 boolQuery.Add(query1, Occur.SHOULD);
             }
 
             TopScoreDocCollector topDocColl = TopScoreDocCollector.Create(10, true);
             m_searcher.Search(boolQuery, topDocColl);
-
-            // Collection of documents matched using the search query.
             TopDocs topDocs = topDocColl.TopDocs();
+
+            Console.WriteLine("Number of hits {0}", topDocs.TotalHits);
 
             foreach (var searchHit in topDocs.ScoreDocs)
             {
-                Console.WriteLine(searchHit.Doc + ". " + m_searcher.Doc(searchHit.Doc).GetField("name").StringValue);
+                Console.WriteLine(searchHit.Doc + ". " + m_searcher.Doc(searchHit.Doc).GetField("description").StringValue);
             }
         }
 
