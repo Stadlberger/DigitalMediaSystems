@@ -8,14 +8,17 @@
         Title="ImageRetrevial" Height="650" Width="950">
     <Grid Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBox x:Name="SearchTextBox" FontSize="16" HorizontalAlignment="Left" Height="25" Margin="20,25,0,0" TextWrapping="Wrap" Text="SearchText" VerticalAlignment="Top" Width="190"/>
-        <ComboBox x:Name="SearchCombobox" HorizontalAlignment="Left" Margin="210,25,0,0" VerticalAlignment="Top" FontSize="14" Width="110" Height="25"/>
-        <Button x:Name="SearchButton" Content="Search" HorizontalAlignment="Left" Margin="340,25,0,0" VerticalAlignment="Top" Width="80" Height="25" Click="SearchButton_Click"/>
+        <TextBox x:Name="SearchTextBox" FontSize="16" HorizontalAlignment="Left" Height="25" Margin="20,20,0,0" TextWrapping="Wrap" Text="SearchText" Keyboard.PreviewKeyDown="SearchTextBox_PreviewKeyDown" VerticalAlignment="Top" Width="190"/>
+        <ComboBox x:Name="SearchCombobox" HorizontalAlignment="Left" Margin="210,20,0,0" VerticalAlignment="Top" FontSize="14" Width="110" Height="25"/>
+        <Button x:Name="AddSearch" Content="+" HorizontalAlignment="Left" Margin="341,20,0,0" VerticalAlignment="Top" Width="25" Height="25" Click="AddSearchTerm"/>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="SearchSpace"  Background="#99B9CAC6" Margin="20" ScrollChanged="SearchSpace_ScrollChanged">
+        <Button x:Name="SearchButton" Content="Search" HorizontalAlignment="Left" Margin="365,20,0,0" VerticalAlignment="Top" Width="100" Height="25" Click="SearchButton_Click"/>
+        <StackPanel Grid.Row="1" Margin="20,5" x:Name="SearchTermsUI" Orientation="Horizontal"/>
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="SearchSpace"  Background="#99B9CAC6" Margin="20,10,20,20" ScrollChanged="SearchSpace_ScrollChanged">
             <Grid Name="ImageGrid">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -24,7 +27,7 @@
                 </Grid.ColumnDefinitions>
             </Grid>
         </ScrollViewer>
-        <Grid Grid.Row="1" Name="DetailView" Background="#D8A2CCD6" Visibility="Hidden" >
+        <Grid Grid.Row="2" Name="DetailView" Background="#D8A2CCD6" Visibility="Hidden" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.5*"/>
                 <ColumnDefinition Width="*"/>

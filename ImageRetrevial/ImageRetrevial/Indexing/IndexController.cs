@@ -21,7 +21,7 @@ namespace ImageRetrevial
 
     class IndexController
     {
-        string m_xmlRoot = @"C:\Users\Philipp\Desktop\xml\xml\";
+        string m_xmlRoot = @"D:\Eigene Daten\Dokumente\Studium\DigitalMediaSystem\Data\devset\xml\";
         DirectoryInfo indexDir;
         IndexSearcher m_searcher;
 

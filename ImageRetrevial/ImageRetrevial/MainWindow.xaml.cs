@@ -24,6 +24,8 @@ namespace ImageRetrevial
         DataController dataController;
         IndexController indexController;
 
+        static Dictionary<string, string> SearchTermToQuery = new Dictionary<string, string>();
+
         double ScrollDistance = 0;
         List<ISearchResult> SearchResults;
 
@@ -46,14 +48,20 @@ namespace ImageRetrevial
         private void InitializeUI()
         {
             List<string> List = new List<string>();
-            List.Add("Text");
-            List.Add("Artist");
-            List.Add("Name");
+            List.Add("Date");
             List.Add("Description");
+            List.Add("Tags");
+            List.Add("Name");
+            List.Add("Artist");
             List.Sort();
             SearchCombobox.ItemsSource = List;
             SearchCombobox.SelectedIndex = 0;
 
+            SearchTermToQuery.Add("Date", "date_taken");
+            SearchTermToQuery.Add("Description", "description");
+            SearchTermToQuery.Add("Tags", "tags");
+            SearchTermToQuery.Add("Name", "title");
+            SearchTermToQuery.Add("Artist", "username");
 
 
             MakeTextBoxSelectable(SearchTextBox);
@@ -76,6 +84,15 @@ namespace ImageRetrevial
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
             //TODO
+            QueryData[] Querys = new QueryData[SearchTermsUI.Children.Count];
+            for(int i=0; i<Querys.Length; i++)
+            {
+                QueryData Data = new QueryData();
+                Object[] UIData = (Object[])((FrameworkElement)SearchTermsUI.Children[i]).Tag;
+                Data.field = UIData[0].ToString();
+                Data.value = UIData[1].ToString();
+                Querys[i] = Data;
+            }
             //Perform Search
             //Get Results ... return List<ISearchResult>
             //Display them
@@ -257,6 +274,67 @@ namespace ImageRetrevial
             var textBox = e.OriginalSource as TextBox;
             if (textBox != null)
                 textBox.SelectAll();
+        }
+
+        private void AddSearchTerm(object sender, RoutedEventArgs e)
+        {
+            Object[] Data = new Object[] { SearchTermToQuery[SearchCombobox.Text], SearchTextBox.Text };
+
+            Border b = new Border();
+            b.CornerRadius = new CornerRadius(20);
+            b.BorderBrush = new SolidColorBrush(Colors.DarkGray);
+            b.Background = new SolidColorBrush(Colors.LightGray);
+            b.BorderThickness = new Thickness(2);
+            b.Margin = new Thickness(2, 0, 2, 0);
+            b.VerticalAlignment = VerticalAlignment.Top;
+            b.Tag = Data;
+
+            StackPanel spanel = new StackPanel();
+            spanel.Orientation = Orientation.Horizontal;
+
+            Label Text = new Label();
+            Text.Content = SearchCombobox.Text.Substring(0,2)+": "+ SearchTextBox.Text;
+            //Text.Background = new SolidColorBrush(Colors.DarkKhaki);
+            Text.FontSize = 18;
+            Text.Margin = new Thickness(5, 0, -5, 0);
+            Text.VerticalContentAlignment = VerticalAlignment.Top;
+            spanel.Children.Add(Text);
+
+            Label Remove = new Label();
+            Remove.Content = "X  ";
+            Remove.FontSize = 18;
+            Remove.Tag = Data;
+            Remove.MouseLeftButtonDown += RemoveQueryTerm;
+            spanel.Children.Add(Remove);
+
+            b.Child = spanel;
+            SearchTermsUI.Children.Add(b);
+
+
+        }
+
+        private void RemoveQueryTerm(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement ele = (FrameworkElement)sender;
+            Object[] Data = (Object[])ele.Tag;
+            for (int i = SearchTermsUI.Children.Count-1; i >= 0; i--)
+            {
+                if (((FrameworkElement)SearchTermsUI.Children[i]).Tag == Data)
+                {
+                    SearchTermsUI.Children.RemoveAt(i);
+                }
+
+            }
+
+        }
+
+        private void SearchTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                AddSearchTerm(null, null);
+                SearchButton_Click(null, null);
+            }
         }
     }
 }
