@@ -28,8 +28,13 @@ namespace ImageRetrevial
     /// <summary>Used for creating and querying indexes of our data.</summary>
     class IndexController
     {
+<<<<<<< HEAD
         string m_xmlRoot = @"D:\Eigene Daten\Dokumente\Studium\DigitalMediaSystem\Data\devset\xml\";
+        DirectoryInfo indexDir;
+=======
+        string m_xmlRoot = @"C:\Users\Philipp\Desktop\xml\xml\";
         DirectoryInfo m_indexDir;
+>>>>>>> 3756cee78405cf281470b50992735aec2d026078
         IndexSearcher m_searcher;
 
         public IndexController()
