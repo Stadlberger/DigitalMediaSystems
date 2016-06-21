@@ -15,10 +15,17 @@ namespace ImageRetrevial
 {
     struct QueryData
     {
+        public QueryData(string fieldName, string fieldValue)
+        {
+            field = fieldName;
+            value = fieldValue;
+        }
+
         public string field;
         public string value;
     }
 
+    /// <summary>Used for creating and querying indexes of our data.</summary>
     class IndexController
     {
         string m_xmlRoot = @"D:\Eigene Daten\Dokumente\Studium\DigitalMediaSystem\Data\devset\xml\";
@@ -32,20 +39,20 @@ namespace ImageRetrevial
                 Directory.CreateDirectory(m_xmlRoot + @"..\index");
             }
 
-            indexDir = new DirectoryInfo(m_xmlRoot + @"..\index");
+            m_indexDir = new DirectoryInfo(m_xmlRoot + @"..\index");
 
-            if (indexDir.GetFiles().Length == 0)
+            if (m_indexDir.GetFiles().Length == 0)
             {
                 foreach (var fileInfo in new DirectoryInfo(m_xmlRoot).EnumerateFiles())
                     BuildIndex(fileInfo.Name);
             }
 
-            m_searcher = new IndexSearcher(FSDirectory.Open(indexDir));
+            m_searcher = new IndexSearcher(FSDirectory.Open(m_indexDir));
         }
 
         void BuildIndex(string fileName)
         {
-            IndexWriter writer = new IndexWriter(FSDirectory.Open(indexDir), new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.LIMITED);
+            IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new StandardAnalyzer(Version.LUCENE_30), true, IndexWriter.MaxFieldLength.LIMITED);
 
             // Read and parse XML file
             string xmlText = File.ReadAllText(m_xmlRoot + fileName);
@@ -71,15 +78,34 @@ namespace ImageRetrevial
             writer.Dispose();
         }
 
+        ///<summary>Used for testing querying while query building is not yet support. Do not ship.</summary>
+        public void TempQueryWithString(string queryString)
+        {
+            var tokens = queryString.Split(' ');
+            QueryData[] queryData = new QueryData[1];
+            queryData[0] = new QueryData(tokens[0], tokens[1]);
+        }
+
         public void QueryIndex(QueryData[] queries)
         {
             BooleanQuery boolQuery = new BooleanQuery();
-
+            
             foreach (var query in queries)
             {
                 Term term = new Term(query.field, query.value);
                 Query query1 = new TermQuery(term);
                 boolQuery.Add(query1, Occur.SHOULD);
+            }
+
+            TopScoreDocCollector topDocColl = TopScoreDocCollector.Create(10, true);
+            m_searcher.Search(boolQuery, topDocColl);
+
+            // Collection of documents matched using the search query.
+            TopDocs topDocs = topDocColl.TopDocs();
+
+            foreach (var searchHit in topDocs.ScoreDocs)
+            {
+                Console.WriteLine(searchHit.Doc + ". " + m_searcher.Doc(searchHit.Doc).GetField("name").StringValue);
             }
         }
 
