@@ -92,15 +92,15 @@ namespace ImageRetrevial
                 data.m_fieldValue = UIData[1].ToString();
                 querys[i] = data;
             }
-            //Perform Search
-            //Get Results ... return List<ISearchResult>
-            //Display them
+
             SearchResults = dataController.RunQuery(querys).ToList();
             DisplaySearch();
         }
 
         public void DisplaySearch()
         {
+            if (SearchResults.Count <= 0)
+                return;
 
             int i = -1;
             do {
@@ -231,6 +231,23 @@ namespace ImageRetrevial
                 FileOpener.Click += OpenFilePath;
                 Headerline.Children.Add(FileOpener);
 
+                ComboBox SimilarSearchCombo = new ComboBox();
+                SimilarSearchCombo.ItemsSource = new List<string>() { "CM","CN", "GLRLM", "HOG", "LBP" };
+                SimilarSearchCombo.SelectedIndex = 0;
+                SimilarSearchCombo.Margin = new Thickness(230, 40, 0, 0);
+                SimilarSearchCombo.Width = 50;
+                SimilarSearchCombo.Height = 25;
+                Headerline.Children.Add(SimilarSearchCombo);
+
+                Button SimilarSearch = new Button();
+                SimilarSearch.Content = "Search Similar";
+                SimilarSearch.Tag = SimilarSearchCombo;
+                SimilarSearch.Height = 25;
+                SimilarSearch.Width = 100;
+                SimilarSearch.Margin = new Thickness(80, 40, 0, 0);
+                SimilarSearch.Click += SimilarSearch_Click;
+                Headerline.Children.Add(SimilarSearch);
+
             }
 
             if (SearchResult.Description != null)
@@ -245,6 +262,21 @@ namespace ImageRetrevial
                 Description.FontSize = 18;
                 DetailInformationSpace.Children.Add(Description);
             }
+        }
+
+        private void SimilarSearch_Click(object sender, RoutedEventArgs e)
+        {
+            ResetSearch();
+            RemoveAllQueryTerms();
+            FrameworkElement fe = (FrameworkElement)sender;
+            ComboBox cb = (ComboBox)fe.Tag;
+            string SearchMethod = cb.Text;
+
+            ////Todo get search results
+            //SearchResults = dataController.RunQuery(querys).ToList();
+
+            CloseDetailView(null,null);
+            DisplaySearch();
         }
 
         private void CloseDetailView(object sender, RoutedEventArgs e)
@@ -300,7 +332,6 @@ namespace ImageRetrevial
 
             Label Text = new Label();
             Text.Content = SearchCombobox.Text.Substring(0,2)+": "+ SearchTextBox.Text;
-            //Text.Background = new SolidColorBrush(Colors.DarkKhaki);
             Text.FontSize = 18;
             Text.Margin = new Thickness(5, 0, -5, 0);
             Text.VerticalContentAlignment = VerticalAlignment.Top;
@@ -332,6 +363,11 @@ namespace ImageRetrevial
 
             }
 
+        }
+
+        private void RemoveAllQueryTerms()
+        {
+            SearchTermsUI.Children.Clear();
         }
 
         private void SearchTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
