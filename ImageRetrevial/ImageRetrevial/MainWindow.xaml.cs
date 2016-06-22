@@ -81,6 +81,7 @@ namespace ImageRetrevial
 
         private void SearchButton_Click(object sender, RoutedEventArgs e)
         {
+            ResetSearch();
             AddSearchTerm(null, null);
             QueryData[] querys = new QueryData[SearchTermsUI.Children.Count];
             for(int i=0; i<querys.Length; i++)
@@ -127,6 +128,15 @@ namespace ImageRetrevial
 
 
         }
+
+        private void ResetSearch()
+        {
+            if(SearchResults != null)
+            SearchResults.Clear();
+            ImageGrid.Children.Clear();
+
+        }
+
 
         private void SearchSpace_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {

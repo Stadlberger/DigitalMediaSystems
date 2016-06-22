@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
-using Lucene.Net.Analysis.Snowball;
+//using Lucene.Net.Analysis.Snowball;
 using Lucene.Net.Analysis;
 
 using FSDirectory = Lucene.Net.Store.FSDirectory;
