@@ -76,7 +76,7 @@ namespace QueryImage
             Console.Write("This took " + DateTime.Now.Subtract(start).TotalMilliseconds + " milliseconds");
             return images.GetRange(0, count);
         }
-
+        
         public List<ISearchResult> getSimilarImages(string index, int count)
         {
             List<Tuple<string, double>> images = new List<Tuple<string, double>>();
@@ -93,7 +93,6 @@ namespace QueryImage
             images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
 
             List<ISearchResult> SearchResults = new List<ISearchResult>();
-
             QueryData[] qData = new QueryData[1];
 
             for (int i = 0; i < images.Count; i++)
@@ -113,36 +112,5 @@ namespace QueryImage
 
             return SearchResults;
         }
-
-        //public List<Tuple<string, double>> getSimilarImagesByFile(string path, int count)
-        //{
-        //    Bitmap refImg = (Bitmap)Bitmap.FromFile(path);
-        //    HistogramsOfOrientedGradients hog = new HistogramsOfOrientedGradients();
-
-        //    List<double> tempDoubles = new List<double>();
-
-        //    foreach (var darray in hog.ProcessImage(refImg))
-        //    {
-        //        foreach (var doub in darray)
-        //        {
-        //            tempDoubles.Add(doub);
-        //        }
-        //    }
-
-        //    double[] currImage = tempDoubles.ToArray();
-
-
-
-        //    DateTime start = DateTime.Now;
-        //    List<Tuple<string, double>> images = new List<Tuple<string, double>>();
-        //    foreach (var kvp in savedImages)
-        //    {
-        //        double dist = currImage.Euclidean(kvp.Value);
-        //        images.Add(new Tuple<string, double>(kvp.Key, dist));
-        //    }
-        //    images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
-        //    Console.Write("This took " + DateTime.Now.Subtract(start).TotalMilliseconds + " milliseconds");
-        //    return images.GetRange(0, count);
-        //}
     }
 }
