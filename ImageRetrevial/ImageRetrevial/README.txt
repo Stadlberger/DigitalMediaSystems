@@ -1,1 +1,1 @@
-Before running the application, you will need to copy config.txt next to the binary and set its values appropriately.
+Before running the application, you will need to copy config.txt next to the binary and set its values appropriately for your data.

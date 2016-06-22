@@ -1,0 +1,4 @@
+pathToXML=I:/div-2014/devset/xml/xml/
+pathToData=I:/div-2014/
+pathToImages=I:/div-2014/devset/img/img/
+pathToCSV=I:/div-2014/devset/descvis/descvis/img/

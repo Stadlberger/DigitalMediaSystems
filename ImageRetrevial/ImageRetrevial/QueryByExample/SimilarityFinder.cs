@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
-using Accord.Imaging;
-using Accord.MachineLearning;
 using Accord.Math;
 using ImageRetrevial;
 
@@ -18,22 +12,20 @@ namespace QueryImage
         private Dictionary<string, double[]> savedImages;
         private DataController dataController;
 
-
         public SimilarityFinder(string assetPath, string features, DataController dataController)
         {
             this.dataController = dataController;
             savedImages = new Dictionary<string, double[]>();
+
             foreach (var url in Directory.GetFiles(assetPath))
             {
                 if (url.EndsWith(features + ".csv"))
                     parseCSV(url);
             }
-            //savedImages = parseCSV(@"D:\div-2014\devset\descvis\descvis\img\acropolis_athens HOG.csv");
         }
 
         private void parseCSV(string path)
         {
-
             try
             {
                 System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
@@ -48,7 +40,7 @@ namespace QueryImage
                         row = line.Split(',');
                         for (int i = 1; i < row.Length; i++)
                             values.Add(double.Parse(row[i]));
-                        if(!savedImages.ContainsKey(row[0]))
+                        if (!savedImages.ContainsKey(row[0]))
                             savedImages.Add(row[0],values.ToArray());
                     }
                 }
@@ -63,16 +55,13 @@ namespace QueryImage
         {
             DateTime start = DateTime.Now;
             List <Tuple<string,double>> images = new List<Tuple<string, double>>();
+
             foreach (var kvp in savedImages)
             {
                 double dist = savedImages[index].Euclidean(kvp.Value);
                 images.Add(new Tuple<string, double>(kvp.Key, dist));   
             }
-            /*Parallel.ForEach(savedImages, kvp =>
-            {
-                double dist = savedImages[index].Euclidean(kvp.Value);
-                lock (images) images.Add(new Tuple<string, double>(kvp.Key, dist));
-            });*/
+
             images.Sort((tuple, tuple1) => tuple.Item2>tuple1.Item2?1:-1);
             Console.Write("This took " + DateTime.Now.Subtract(start).TotalMilliseconds + " milliseconds");
             return images.GetRange(0, count);
@@ -81,16 +70,13 @@ namespace QueryImage
         public List<ISearchResult> getSimilarImages(string index, int count)
         {
             List<Tuple<string, double>> images = new List<Tuple<string, double>>();
+
             foreach (var kvp in savedImages)
             {
                 double dist = savedImages[index].Euclidean(kvp.Value);
                 images.Add(new Tuple<string, double>(kvp.Key, dist));
             }
-            /*Parallel.ForEach(savedImages, kvp =>
-            {
-                double dist = savedImages[index].Euclidean(kvp.Value);
-                lock (images) images.Add(new Tuple<string, double>(kvp.Key, dist));
-            });*/
+
             images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
             images = images.GetRange(0, count);
 
@@ -107,11 +93,6 @@ namespace QueryImage
 
                 SearchResults.Add(dataController.RunQuery(qData).ToList()[0]);
             }
-            //Perform Search
-            //Get Results ... return List<ISearchResult>
-            //Display them
-            
-
             return SearchResults;
         }
     }

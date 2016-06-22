@@ -1,0 +1,4 @@
+pathToXML=
+pathToData=
+pathToImages=
+pathToCSV=

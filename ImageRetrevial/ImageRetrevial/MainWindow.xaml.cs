@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,10 +41,20 @@ namespace ImageRetrevial
             simFinders = new Dictionary<string, SimilarityFinder>();
             simMethods = new List<string>() { "CM3x3", "CN3x3", "GLRLM3x3", "HOG", "LBP3x3" };
 
+            CountdownEvent cdEv = new CountdownEvent(1);
+            
+
             foreach (string s in simMethods)
             {
-                simFinders.Add(s, new SimilarityFinder(Config.Get().m_pathToCSV, s, dataController));
+                cdEv.AddCount();
+                ThreadPool.QueueUserWorkItem(obj => {
+                    simFinders.Add(s, new SimilarityFinder(Config.Get().m_pathToCSV, s, dataController));
+                    cdEv.Signal();
+                });
             }
+
+            cdEv.Signal();
+            cdEv.Wait();
         }
         //Add all your UI Setup here
         private void InitializeUI()
