@@ -56,7 +56,7 @@ namespace ImageRetrevial
         
         void BuildIndex()
         {
-            //new SnowballAnalyzer(Version.LUCENE_30, "Nigel");
+            //var an = new SnowballAnalyzer(Version.LUCENE_30, "Nigel"); 
             IndexWriter writer = new IndexWriter(FSDirectory.Open(m_indexDir), new WhitespaceAnalyzer(), true, IndexWriter.MaxFieldLength.UNLIMITED);
             var documents = new List<Document>();
             
