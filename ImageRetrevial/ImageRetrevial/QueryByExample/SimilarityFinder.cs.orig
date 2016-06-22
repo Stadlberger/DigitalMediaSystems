@@ -36,7 +36,6 @@ namespace QueryImage
 
             try
             {
-                System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
                 using (StreamReader readFile = new StreamReader(path))
                 {
                     string line;
@@ -77,7 +76,25 @@ namespace QueryImage
             Console.Write("This took " + DateTime.Now.Subtract(start).TotalMilliseconds + " milliseconds");
             return images.GetRange(0, count);
         }
-        
+
+<<<<<<< HEAD
+        //public List<Tuple<string, double>> getSimilarImagesByFile(string path, int count)
+        //{
+        //    Bitmap refImg = (Bitmap)Bitmap.FromFile(path);
+        //    HistogramsOfOrientedGradients hog = new HistogramsOfOrientedGradients();
+
+        //    List<double> tempDoubles = new List<double>();
+
+        //    foreach (var darray in hog.ProcessImage(refImg))
+        //    {
+        //        foreach (var doub in darray)
+        //        {
+        //            tempDoubles.Add(doub);
+        //        }
+        //    }
+
+        //    double[] currImage = tempDoubles.ToArray();
+=======
         public List<ISearchResult> getSimilarImages(string index, int count)
         {
             List<Tuple<string, double>> images = new List<Tuple<string, double>>();
@@ -92,11 +109,14 @@ namespace QueryImage
                 lock (images) images.Add(new Tuple<string, double>(kvp.Key, dist));
             });*/
             images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
-            images = images.GetRange(0, count);
 
             List<ISearchResult> SearchResults = new List<ISearchResult>();
+>>>>>>> c7ba6a83eecb2c94028b48a15b806db881315e04
+
             QueryData[] qData = new QueryData[1];
 
+<<<<<<< HEAD
+=======
             for (int i = 0; i < images.Count; i++)
             {
                 QueryData data = new QueryData();
@@ -114,5 +134,36 @@ namespace QueryImage
 
             return SearchResults;
         }
+
+        //public List<Tuple<string, double>> getSimilarImagesByFile(string path, int count)
+        //{
+        //    Bitmap refImg = (Bitmap)Bitmap.FromFile(path);
+        //    HistogramsOfOrientedGradients hog = new HistogramsOfOrientedGradients();
+
+        //    List<double> tempDoubles = new List<double>();
+
+        //    foreach (var darray in hog.ProcessImage(refImg))
+        //    {
+        //        foreach (var doub in darray)
+        //        {
+        //            tempDoubles.Add(doub);
+        //        }
+        //    }
+
+        //    double[] currImage = tempDoubles.ToArray();
+
+
+>>>>>>> c7ba6a83eecb2c94028b48a15b806db881315e04
+        //    DateTime start = DateTime.Now;
+        //    List<Tuple<string, double>> images = new List<Tuple<string, double>>();
+        //    foreach (var kvp in savedImages)
+        //    {
+        //        double dist = currImage.Euclidean(kvp.Value);
+        //        images.Add(new Tuple<string, double>(kvp.Key, dist));
+        //    }
+        //    images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
+        //    Console.Write("This took " + DateTime.Now.Subtract(start).TotalMilliseconds + " milliseconds");
+        //    return images.GetRange(0, count);
+        //}
     }
 }
