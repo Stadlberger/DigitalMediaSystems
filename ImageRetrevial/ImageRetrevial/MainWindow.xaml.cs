@@ -137,7 +137,8 @@ namespace ImageRetrevial
             if(SearchResults != null)
             SearchResults.Clear();
             ImageGrid.Children.Clear();
-
+            SearchSpace.ScrollToTop();
+            ImageGrid.RowDefinitions.Clear();
         }
 
 
@@ -191,6 +192,8 @@ namespace ImageRetrevial
 
         private void CreateResultImageEntry(int index)
         {
+            if (SearchResults.Count <= 0)
+                return;
             Image Entry = new Image();
             string path = Config.Get().m_pathToImages + SearchResults[index].RelativeURI;
             var uri = new Uri(path, UriKind.Absolute);
@@ -280,8 +283,7 @@ namespace ImageRetrevial
             ComboBox cb = (ComboBox)Data[0];
             string SearchMethod = cb.Text;
             string Id = (string)Data[1];
-            ////Todo get search results
-            //SearchResults = dataController.RunQuery(querys).ToList();
+
             SearchResults = simFinders[SearchMethod].getSimilarImages(Id, 15);
 
             CloseDetailView(null,null);

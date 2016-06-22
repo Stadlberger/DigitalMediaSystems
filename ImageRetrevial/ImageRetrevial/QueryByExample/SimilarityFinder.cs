@@ -91,6 +91,7 @@ namespace QueryImage
                 lock (images) images.Add(new Tuple<string, double>(kvp.Key, dist));
             });*/
             images.Sort((tuple, tuple1) => tuple.Item2 > tuple1.Item2 ? 1 : -1);
+            images = images.GetRange(0, count);
 
             List<ISearchResult> SearchResults = new List<ISearchResult>();
             QueryData[] qData = new QueryData[1];
