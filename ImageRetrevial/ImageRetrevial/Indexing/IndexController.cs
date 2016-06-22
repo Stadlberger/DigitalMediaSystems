@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using Lucene.Net.Analysis.Snowball;
+
 using Lucene.Net.Analysis;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Analysis.Snowball;
