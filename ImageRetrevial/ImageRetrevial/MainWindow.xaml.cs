@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
+using QueryImage;
 
 namespace ImageRetrevial
 {
@@ -22,25 +24,26 @@ namespace ImageRetrevial
     public partial class MainWindow : Window
     {
         DataController dataController;
+        Dictionary<string, SimilarityFinder> simFinders;
         
         static Dictionary<string, string> SearchTermToQuery = new Dictionary<string, string>();
 
         double ScrollDistance = 0;
         List<ISearchResult> SearchResults;
+        List<string> simMethods;
 
         public MainWindow()
         {
             InitializeComponent();
             InitializeUI();
             dataController = new DataController();
-            
-            //foreach (var file in moc.GetResults())
-            //{
-            //    Console.WriteLine(file.ImageName);
-            //    Console.WriteLine(file.FileName);
-            //    Console.WriteLine(file.Description);
-            //}
+            simFinders = new Dictionary<string, SimilarityFinder>();
+            simMethods = new List<string>() { "CM3x3", "CN3x3", "GLRLM3x3", "HOG", "LBP3x3" };
 
+            foreach (string s in simMethods)
+            {
+                simFinders.Add(s, new SimilarityFinder(Config.Get().m_pathToCSV, s, dataController));
+            }
         }
         //Add all your UI Setup here
         private void InitializeUI()
@@ -232,16 +235,20 @@ namespace ImageRetrevial
                 Headerline.Children.Add(FileOpener);
 
                 ComboBox SimilarSearchCombo = new ComboBox();
-                SimilarSearchCombo.ItemsSource = new List<string>() { "CM","CN", "GLRLM", "HOG", "LBP" };
+                SimilarSearchCombo.ItemsSource = simMethods;
                 SimilarSearchCombo.SelectedIndex = 0;
                 SimilarSearchCombo.Margin = new Thickness(230, 40, 0, 0);
                 SimilarSearchCombo.Width = 50;
                 SimilarSearchCombo.Height = 25;
                 Headerline.Children.Add(SimilarSearchCombo);
 
+                Object[] objArr = new Object[2];
+                objArr[0] = SimilarSearchCombo;
+                objArr[1] = System.IO.Path.GetFileNameWithoutExtension(DetailImage.Source.ToString());
+
                 Button SimilarSearch = new Button();
                 SimilarSearch.Content = "Search Similar";
-                SimilarSearch.Tag = SimilarSearchCombo;
+                SimilarSearch.Tag = objArr;
                 SimilarSearch.Height = 25;
                 SimilarSearch.Width = 100;
                 SimilarSearch.Margin = new Thickness(80, 40, 0, 0);
@@ -269,11 +276,13 @@ namespace ImageRetrevial
             ResetSearch();
             RemoveAllQueryTerms();
             FrameworkElement fe = (FrameworkElement)sender;
-            ComboBox cb = (ComboBox)fe.Tag;
+            Object[] Data = (Object[])fe.Tag;
+            ComboBox cb = (ComboBox)Data[0];
             string SearchMethod = cb.Text;
-
+            string Id = (string)Data[1];
             ////Todo get search results
             //SearchResults = dataController.RunQuery(querys).ToList();
+            SearchResults = simFinders[SearchMethod].getSimilarImages(Id, 15);
 
             CloseDetailView(null,null);
             DisplaySearch();

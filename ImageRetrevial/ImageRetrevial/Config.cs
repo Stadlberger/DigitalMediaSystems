@@ -11,6 +11,7 @@ namespace ImageRetrevial
         public string m_pathToXML;
         public string m_pathToData;
         public string m_pathToImages;
+        public string m_pathToCSV;
 
         Config()
         {
@@ -34,6 +35,10 @@ namespace ImageRetrevial
 
                         case "pathToImages":
                             m_pathToImages = tokens[1];
+                            break;
+
+                        case "pathToCSV":
+                            m_pathToCSV = tokens[1];
                             break;
 
                         default:
